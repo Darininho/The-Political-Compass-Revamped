@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Political Compass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Lexend:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <button class="brand" onclick="PC.home()">The Political Compass</button>
+  <nav class="top-links">
+    <button onclick="PC.openList()">Ideologies</button>
+    <button onclick="PC.openModal('m-display')">Display</button>
+  </nav>
+</header>
+
+<main>
+
+<!-- ═════ HOME ═════ -->
+<section id="v-home" class="view">
+  <div class="home-intro">
+    <h1>Where do you stand?</h1>
+    <p class="lede">84 statements. Three questions underneath all of them: who should run the economy, how much power the state should have, and whether society should change its values or keep them.</p>
+    <div class="start-row">
+      <button class="btn primary" onclick="PC.start()">Start the test <kbd>Enter</kbd></button>
+      <button class="btn ghost hidden" id="resume-btn" onclick="PC.resume()">Continue where you left off</button>
+    </div>
+    <p class="muted small">About 12 minutes.</p>
+  </div>
+
+  <div class="axis-cards" id="axis-cards"></div>
+
+  <section class="home-map">
+    <div class="sec-head">
+      <h2>The map</h2>
+      <p class="muted">Every ideology in the test, placed on the economic and authority axes. Tap or hover a dot. The third axis, culture, is shown in the results as a separate bar.</p>
+    </div>
+    <div class="compass-wrap" id="home-compass"></div>
+  </section>
+
+  <section class="quad-guide">
+    <h2>The four corners</h2>
+    <div class="quad-grid">
+      <div class="quad" data-q="al"><span class="qtag">Authoritarian left</span><p>A strong state used to pursue economic equality and collective ownership.</p><p class="muted small">Leninism, Maoism, Titoism, Chavism</p></div>
+      <div class="quad" data-q="ar"><span class="qtag">Authoritarian right</span><p>A strong state used to protect order, hierarchy, nation or faith, with private property kept.</p><p class="muted small">Fascism, absolute monarchy, national conservatism</p></div>
+      <div class="quad" data-q="ll"><span class="qtag">Libertarian left</span><p>Equality and shared ownership reached without a ruling state, through self-management and mutual aid.</p><p class="muted small">Anarcho-communism, syndicalism, council communism</p></div>
+      <div class="quad" data-q="lr"><span class="qtag">Libertarian right</span><p>Free markets and personal freedom, with the state kept small or abolished.</p><p class="muted small">Libertarianism, classical liberalism, anarcho-capitalism</p></div>
+    </div>
+  </section>
+</section>
+
+<!-- ═════ QUIZ ═════ -->
+<section id="v-quiz" class="view hidden">
+  <div class="quiz">
+    <div class="quiz-top">
+      <button class="btn text small" onclick="PC.back()">← Back</button>
+      <span class="q-meta"><span id="q-cat"></span> · <span id="q-num"></span></span>
+    </div>
+    <div class="track"><div class="track-fill" id="q-track"></div></div>
+
+    <p class="q-text" id="q-text"></p>
+    <button class="btn text small explain-btn" id="explain-btn" onclick="PC.toggleExplain()">In plain words</button>
+    <p class="explain hidden" id="explain"></p>
+
+    <div class="scale" id="scale"></div>
+    <button class="btn text small skip" onclick="PC.vote(0)">Skip — no opinion <kbd>0</kbd></button>
+    <p class="muted small kbd-hint">Keys <kbd>1</kbd>–<kbd>6</kbd> answer, <kbd>0</kbd> skips, <kbd>←</kbd> goes back.</p>
+  </div>
+</section>
+
+<!-- ═════ RESULT ═════ -->
+<section id="v-result" class="view hidden"></section>
+
+</main>
+
+<footer class="foot muted small">Placements are approximations for comparison, not verdicts. Read the method note in your results.</footer>
+
+<!-- ═════ MODALS ═════ -->
+<div class="modal hidden" id="m-display" role="dialog" aria-modal="true" aria-labelledby="m-display-h">
+  <div class="modal-box small-box">
+    <div class="modal-head"><h3 id="m-display-h">Display</h3><button class="x" onclick="PC.closeModal()">✕</button></div>
+    <label class="opt">Theme
+      <select onchange="PC.setPref('theme',this.value)" id="pref-theme"><option value="dark">Dark</option><option value="light">Light</option></select></label>
+    <label class="opt">Text size
+      <select onchange="PC.setPref('size',this.value)" id="pref-size"><option value="small">Small</option><option value="normal">Normal</option><option value="large">Large</option><option value="xlarge">Extra large</option></select></label>
+    <label class="opt check"><input type="checkbox" id="pref-easy" onchange="PC.setPref('easy',this.checked)"> Easy-read font</label>
+    <label class="opt check"><input type="checkbox" id="pref-contrast" onchange="PC.setPref('contrast',this.checked)"> High contrast</label>
+    <label class="opt check"><input type="checkbox" id="pref-motion" onchange="PC.setPref('motion',this.checked)"> Reduce motion</label>
+  </div>
+</div>
+
+<div class="modal hidden" id="m-list" role="dialog" aria-modal="true" aria-labelledby="m-list-h">
+  <div class="modal-box">
+    <div class="modal-head"><h3 id="m-list-h">All ideologies</h3><button class="x" onclick="PC.closeModal()">✕</button></div>
+    <input type="search" class="search" id="list-search" placeholder="Search…" oninput="PC.filterList(this.value)">
+    <div id="list-body"></div>
+  </div>
+</div>
+
+<div class="modal hidden" id="m-ideo" role="dialog" aria-modal="true">
+  <div class="modal-box" id="ideo-body"></div>
+</div>
+
+<div class="tip hidden" id="tip" role="tooltip"></div>
+
+<script src="data.js"></script>
+<script src="share.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
